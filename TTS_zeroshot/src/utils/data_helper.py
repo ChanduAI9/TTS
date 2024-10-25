@@ -10,7 +10,7 @@ def convert_data_to_ids(tokenizer, target, text, label, config):
     
     concat_sent = []
     for tar, sent in zip(target, text):
-        concat_sent.append([' '.join(sent), ' '.join(tar)])
+        concat_sent.append([' '.join(map(str, sent)), ' '.join(map(str, tar))])
     encoded_dict = tokenizer.batch_encode_plus(
                     concat_sent,
                     add_special_tokens = True, # Add '[CLS]' and '[SEP]'
