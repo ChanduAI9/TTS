@@ -14,7 +14,7 @@ do
     for epoch in {0..1}
     do
         echo "start training Gen ${epoch}......"
-        python train_model.py -c $1 -train ${train_data} -dev ${dev_data} -test ${test_data} -kg ${kg_data} \
+        python train_model.py -c  ../config/config-bert.txt $1 -train ${train_data} -dev ${dev_data} -test ${test_data} -kg ${kg_data} \
                               -g ${epoch} -s ${seed} -d 0.1 -d2 0.7 -clipgrad True -step 3  --earlystopping_step 5 -p 10
     done
 done
@@ -37,7 +37,7 @@ do
   for epoch in {0..1}
   do
       echo "start training Gen ${epoch}......"
-      python train_model.py -c $1 -train ${train_data} -dev ${dev_data} -test ${test_data} -kg ${kg_data} \
+      python train_model.py -c  ../config/config-bert.txt $1 -train ${train_data} -dev ${dev_data} -test ${test_data} -kg ${kg_data} \
                             -g ${epoch} -s ${seed} -d 0.1 -d2 0.7 -clipgrad True -step 3  --earlystopping_step 5 -p 100
   done
 done
