@@ -28,6 +28,7 @@ def data_clean(strings, norm_dict):
     p.set_options(p.OPT.URL,p.OPT.EMOJI,p.OPT.RESERVED)
     clean_data = p.clean(strings) # using lib to clean URL,hashtags...
     clean_data= re.sub(r'http\S+', '',strings)
+    clean_data = re.sub(r'[😀-🙏]', '', clean_data)
     clean_data = re.sub(r"#SemST", "", clean_data)
     clean_data = re.findall(r"[A-Za-z#@]+|[,.!?&/\<>=$]|[0-9]+",clean_data)
     clean_data = [[x.lower()] for x in clean_data]
