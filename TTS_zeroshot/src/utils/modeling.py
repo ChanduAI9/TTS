@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from transformers import BertModel, BartConfig, BartForSequenceClassification
 from transformers.models.bart.modeling_bart import BartEncoder, BartPretrainedModel
+from transformers import BartPreTrainedModel
 
 # BERT
 class bert_classifier(nn.Module):
