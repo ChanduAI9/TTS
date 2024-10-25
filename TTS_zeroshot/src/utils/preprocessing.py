@@ -3,6 +3,7 @@ import re
 import wordninja
 import csv
 import pandas as pd
+pd.set_option('future.no_silent_downcasting',True)
 from utils import augment
 
 # Data Loading
@@ -13,7 +14,7 @@ def load_data(filename):
     raw_target = pd.read_csv(filename,usecols=[1], encoding='ISO-8859-1')
     raw_label = pd.read_csv(filename,usecols=[2], encoding='ISO-8859-1')
     seen = pd.read_csv(filename,usecols=[3], encoding='ISO-8859-1')
-    label = pd.DataFrame.replace(raw_label,['AGAINST','FAVOR','NONE'], [0,1,2])
+    label = pd.DataFrame.replace(raw_label,['AGAINST','FAVOR','NONE'], [0,1,2]).infer_objects(copy=False)
     concat_text = pd.concat([raw_text, label, raw_target, seen], axis=1)
     concat_text.rename(columns={'Stance 1':'Stance','Target 1':'Target'}, inplace=True)
     if 'train' not in filename:
