@@ -3,7 +3,7 @@ import re
 import wordninja
 import csv
 import pandas as pd
-# pd.set_option('future.no_silent_downcasting',True)
+pd.set_option('future.no_silent_downcasting',True)
 from utils import augment
 
 # Data Loading
