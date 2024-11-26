@@ -598,5 +598,5 @@ def run_classifier():
 #         sh.update('A{0}'.format(row_num), target_word_pair[target_index])
     sh.update('B{0}:O{1}'.format(row_num,row_num+30), save_result)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     run_classifier()
