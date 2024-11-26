@@ -4,7 +4,8 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 
 
-# Evaluationdef compute_f1(tp, fp, fn):
+# Evaluation
+def compute_f1(tp, fp, fn):
     """
     Computes the F1 score given true positives (tp), false positives (fp), and false negatives (fn).
     """
