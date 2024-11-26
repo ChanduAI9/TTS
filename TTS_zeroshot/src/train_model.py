@@ -109,7 +109,7 @@ def run_classifier():
         for line in lines:
             row = line.split('\t')
             data2[row[0]] = row[1].rstrip()
-    norm_dict = {**data1,**data2}
+    norm_dict = {*data1,*data2}
     
     # load config file
     with open(args['config_file'], 'r') as f:
@@ -557,16 +557,16 @@ def run_classifier():
         best_favor.append(test_f1_favor[best_epoch])
         best_result.append(test_f1_average[best_epoch])
 
-        print("******************************************")
+        print("**************")
         print("dev results with seed {} on all epochs".format(seed))
         print(val_f1_average)
         best_val_against.append(val_f1_against[best_epoch])
         best_val_favor.append(val_f1_favor[best_epoch])
         best_val.append(val_f1_average[best_epoch])
-        print("******************************************")
+        print("**************")
         print("test results with seed {} on all epochs".format(seed))
         print(test_f1_average)
-        print("******************************************")
+        print("**************")
         print(max(best_result))
         print(best_result)
         
@@ -598,5 +598,5 @@ def run_classifier():
 #         sh.update('A{0}'.format(row_num), target_word_pair[target_index])
     sh.update('B{0}:O{1}'.format(row_num,row_num+30), save_result)
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     run_classifier()
