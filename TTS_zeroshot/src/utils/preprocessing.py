@@ -3,7 +3,7 @@ import re
 import wordninja
 import csv
 import pandas as pd
-
+pd.set_option('future.no_silent_downcasting',True)
 from utils import augment
 
 # Data Loading
@@ -24,9 +24,13 @@ def load_data(filename):
 
 # Data Cleaning
 def data_clean(strings, norm_dict):
+    # Manually remove URLs
     clean_data = re.sub(r'http\S+', '', strings)
+    # Remove emojis (you can add more Unicode ranges for more emoji types)
     clean_data = re.sub(r'[😀-🙏]', '', clean_data)
+    # Remove special reserved words or unwanted symbols if needed
     clean_data = re.findall(r"[A-Za-z#@]+|[,.!?&/\\<>=$]|[0-9]+", clean_data)
+    
     clean_data = [[x.lower()] for x in clean_data]
 
     # Normalize words if in norm_dict
