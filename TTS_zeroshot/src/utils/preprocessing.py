@@ -1,59 +1,108 @@
-import preprocessor as p 
+import preprocessor as p
 import re
 import wordninja
 import csv
 import pandas as pd
-pd.set_option('future.no_silent_downcasting',True)
+pd.set_option('future.no_silent_downcasting', True)
 from utils import augment
+
 
 # Data Loading
 def load_data(filename):
+    """
+    Load and process data from a CSV file.
 
+    Args:
+        filename (str): Path to the dataset file.
+
+    Returns:
+        pd.DataFrame: Processed DataFrame with cleaned and combined data.
+    """
     concat_text = pd.DataFrame()
-    raw_text = pd.read_csv(filename,usecols=[0], encoding='ISO-8859-1')
-    raw_target = pd.read_csv(filename,usecols=[1], encoding='ISO-8859-1')
-    raw_label = pd.read_csv(filename,usecols=[2], encoding='ISO-8859-1')
-    seen = pd.read_csv(filename,usecols=[3], encoding='ISO-8859-1')
-    label = pd.DataFrame.replace(raw_label,['AGAINST','FAVOR','NONE'], [0,1,2]).infer_objects(copy=False)
+
+    # Load individual columns
+    raw_text = pd.read_csv(filename, usecols=[0], encoding='ISO-8859-1')
+    raw_target = pd.read_csv(filename, usecols=[1], encoding='ISO-8859-1')
+    raw_label = pd.read_csv(filename, usecols=[2], encoding='ISO-8859-1')
+    seen = pd.read_csv(filename, usecols=[3], encoding='ISO-8859-1')
+
+    # Replace string labels with numeric values
+    label = raw_label.replace(['AGAINST', 'FAVOR', 'NONE'], [0, 1, 2])
+
+    # Combine all columns into a single DataFrame
     concat_text = pd.concat([raw_text, label, raw_target, seen], axis=1)
-    concat_text.rename(columns={'Stance 1':'Stance','Target 1':'Target'}, inplace=True)
+    concat_text.columns = ['Tweet', 'Stance', 'Target', 'Seen']
+
+    # Remove rows with 'Seen' labels for non-training datasets
     if 'train' not in filename:
-        concat_text = concat_text[concat_text['seen?'] != 1] # remove few-shot labels
-    
+        concat_text = concat_text[concat_text['Seen'] != 1]
+
     return concat_text
+
 
 # Data Cleaning
 def data_clean(strings, norm_dict):
-    # Manually remove URLs
-    clean_data = re.sub(r'http\S+', '', strings)
-    # Remove emojis (you can add more Unicode ranges for more emoji types)
-    clean_data = re.sub(r'[😀-🙏]', '', clean_data)
-    # Remove special reserved words or unwanted symbols if needed
-    clean_data = re.findall(r"[A-Za-z#@]+|[,.!?&/\\<>=$]|[0-9]+", clean_data)
-    
-    clean_data = [[x.lower()] for x in clean_data]
+    """
+    Clean and normalize individual strings using a normalization dictionary.
 
-    # Normalize words if in norm_dict
+    Args:
+        strings (str): Input text string to clean.
+        norm_dict (dict): Dictionary for normalizing slang and abbreviations.
+
+    Returns:
+        list: List of cleaned and normalized tokens.
+    """
+    # Remove URLs
+    clean_data = re.sub(r'http\S+', '', strings)
+
+    # Remove emojis (you can add more Unicode ranges for additional emojis)
+    clean_data = re.sub(r'[😀-🙏]', '', clean_data)
+
+    # Extract tokens: words, hashtags, mentions, punctuation, and numbers
+    clean_data = re.findall(r"[A-Za-z#@]+|[,.!?&/\\<>=$]|[0-9]+", clean_data)
+
+    # Convert to lowercase and normalize using norm_dict
+    clean_data = [[token.lower()] for token in clean_data]
     for i in range(len(clean_data)):
         if clean_data[i][0] in norm_dict:
             clean_data[i] = norm_dict[clean_data[i][0]].split()
 
     return clean_data
+
+
 # Clean All Data
 def clean_all(filename, norm_dict):
-    
-    concat_text = load_data(filename) # load all data as DataFrame type
-    raw_data = concat_text['Tweet'].values.tolist() # convert DataFrame to list ['string','string',...]
-    label = concat_text['Stance'].values.tolist()
-    x_target = concat_text['Target'].values.tolist()
+    """
+    Clean and process the entire dataset file.
+
+    Args:
+        filename (str): Path to the dataset file.
+        norm_dict (dict): Dictionary for normalizing slang and abbreviations.
+
+    Returns:
+        tuple: A tuple containing cleaned tweets, labels, and targets.
+    """
+    # Load all data as a DataFrame
+    concat_text = load_data(filename)
+
+    # Extract required columns
+    raw_data = concat_text['Tweet'].values.tolist()  # Tweets as a list of strings
+    label = concat_text['Stance'].values.tolist()  # Stances (labels) as a list
+    x_target = concat_text['Target'].values.tolist()  # Targets as a list of strings
+
+    # Initialize containers for cleaned data
     clean_data = [None for _ in range(len(raw_data))]
-    
+
+    # Clean tweets and targets
     for i in range(len(raw_data)):
-        clean_data[i] = data_clean(raw_data[i],norm_dict) # clean each tweet text [['word1','word2'],[...],...]
-        x_target[i] = data_clean(x_target[i],norm_dict)
-    avg_ls = sum([len(x) for x in clean_data])/len(clean_data)
-    
-    print("average length: ", avg_ls)
-    print("num of subset: ", len(label))
-    
-    return clean_data,label,x_target
+        clean_data[i] = data_clean(raw_data[i], norm_dict)  # Clean each tweet
+        x_target[i] = data_clean(x_target[i], norm_dict)  # Clean each target
+
+    # Compute average length of cleaned tweets
+    avg_length = sum([len(x) for x in clean_data]) / len(clean_data)
+
+    # Log statistics
+    print("Average tweet length: ", avg_length)
+    print("Number of samples: ", len(label))
+
+    return clean_data, label, x_target
